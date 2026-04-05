@@ -1,4 +1,4 @@
-name: "Infra DEV — Terraform"
+﻿name: "Infra DEV â€” Terraform"
 
 on:
   push:
@@ -33,7 +33,7 @@ permissions:
 
 jobs:
 
-  # ── Resolve image tag ─────────────────────────────────
+  # â”€â”€ Resolve image tag â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # repository_dispatch se tag aata hai, manual se override
   resolve-tag:
     name: "Resolve Image Tag"
@@ -53,7 +53,7 @@ jobs:
             echo "image_tag=dev-latest" >> $GITHUB_OUTPUT
           fi
 
-  # ── Terraform Init ────────────────────────────────────
+  # â”€â”€ Terraform Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   tf-init:
     name: "Terraform Init [DEV]"
     runs-on: ubuntu-latest
@@ -90,7 +90,7 @@ jobs:
           path: terraform/.terraform
           key: tf-infra-dev-${{ hashFiles('terraform/.terraform.lock.hcl') }}
 
-  # ── Terraform Plan ────────────────────────────────────
+  # â”€â”€ Terraform Plan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   tf-plan:
     name: "Terraform Plan [DEV]"
     runs-on: ubuntu-latest
@@ -118,6 +118,16 @@ jobs:
           path: terraform/.terraform
           key: tf-infra-dev-${{ hashFiles('terraform/.terraform.lock.hcl') }}
 
+      - name: Terraform Init (plan stage)
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_KEY }}" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ env.TF_LOCK_TABLE }}" \
+            -backend-config="encrypt=true" \
+            -reconfigure
+
       - name: Terraform Plan
         run: |
           terraform plan \
@@ -136,7 +146,7 @@ jobs:
           path:           terraform/tfplan-dev
           retention-days: 1
 
-  # ── Terraform Apply ───────────────────────────────────
+  # â”€â”€ Terraform Apply â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   tf-apply:
     name: "Terraform Apply [DEV]"
     runs-on: ubuntu-latest
@@ -187,9 +197,9 @@ jobs:
             aws cloudfront create-invalidation \
               --distribution-id "$DIST_ID" \
               --paths "/*"
-            echo "CloudFront cache invalidated — distribution: $DIST_ID"
+            echo "CloudFront cache invalidated â€” distribution: $DIST_ID"
           else
-            echo "CloudFront distribution not found — skipping invalidation"
+            echo "CloudFront distribution not found â€” skipping invalidation"
           fi
 
       - name: Deployment Summary
@@ -202,7 +212,7 @@ jobs:
           echo "| Triggered By | ${{ github.event_name }} |"                >> $GITHUB_STEP_SUMMARY
           echo "| App URL | https://shabaz.mytitan.in |"                    >> $GITHUB_STEP_SUMMARY
 
-  # ── Terraform Destroy ─────────────────────────────────
+  # â”€â”€ Terraform Destroy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   tf-destroy:
     name: "Terraform Destroy [DEV]"
     runs-on: ubuntu-latest
@@ -245,3 +255,4 @@ jobs:
         env:
           TF_VAR_db_password: ${{ secrets.DEV_DB_PASSWORD }}
           TF_VAR_jwt_secret:  ${{ secrets.DEV_JWT_SECRET }}
+
