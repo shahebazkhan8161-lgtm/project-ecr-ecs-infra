@@ -21,9 +21,9 @@ frontend_desired_count = 1
 
 # OIDC — sirf develop branch DEV role assume kar sakti hai
 github_allowed_subjects = [
-  "repo:YOUR-ORG/project-ecr-ecs-frontend:ref:refs/heads/develop",
-  "repo:YOUR-ORG/project-ecr-ecs-backend:ref:refs/heads/develop",
-  "repo:YOUR-ORG/project-ecr-ecs-infra:ref:refs/heads/develop"
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-frontend:ref:refs/heads/develop",
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-backend:ref:refs/heads/develop",
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-infra:ref:refs/heads/develop"
 ]
 
 # Secrets — CI se inject honge (yahan mat likho)

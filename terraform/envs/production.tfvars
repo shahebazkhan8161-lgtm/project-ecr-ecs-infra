@@ -21,9 +21,9 @@ frontend_desired_count = 2
 
 # OIDC — sirf main branch PROD role assume kar sakti hai
 github_allowed_subjects = [
-  "repo:YOUR-ORG/project-ecr-ecs-frontend:ref:refs/heads/main",
-  "repo:YOUR-ORG/project-ecr-ecs-backend:ref:refs/heads/main",
-  "repo:YOUR-ORG/project-ecr-ecs-infra:ref:refs/heads/main"
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-frontend:ref:refs/heads/main",
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-backend:ref:refs/heads/main",
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-infra:ref:refs/heads/main"
 ]
 
 # Secrets — CI se inject honge

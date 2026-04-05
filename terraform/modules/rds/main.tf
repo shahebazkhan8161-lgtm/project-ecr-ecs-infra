@@ -1,4 +1,4 @@
-resource "aws_security_group" "rds" {
+﻿resource "aws_security_group" "rds" {
   name   = "${var.project}-rds-sg-${var.environment}"
   vpc_id = var.vpc_id
 
@@ -35,7 +35,7 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "postgres" {
   identifier        = "${var.project}-db-${var.environment}"
   engine            = "postgres"
-  engine_version    = "15.4"
+  engine_version    = "15"
   instance_class    = var.db_instance_class
   allocated_storage = 20
   storage_type      = "gp3"
@@ -59,3 +59,4 @@ resource "aws_db_instance" "postgres" {
     ManagedBy   = "terraform"
   }
 }
+

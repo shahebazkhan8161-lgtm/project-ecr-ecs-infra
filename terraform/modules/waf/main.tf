@@ -1,4 +1,13 @@
-# ── WAF Web ACL ───────────────────────────────────────
+﻿terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      version               = "~> 5.0"
+      configuration_aliases = [aws.us_east_1]
+    }
+  }
+}
+# â”€â”€ WAF Web ACL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # CloudFront ke saath attach hota hai
 # IMPORTANT: CloudFront WAF hamesha us-east-1 mein banana padta hai
 # Isliye yeh module us-east-1 provider use karta hai
@@ -6,14 +15,14 @@
 resource "aws_wafv2_web_acl" "main" {
   provider    = aws.us_east_1
   name        = "${var.project}-waf-${var.environment}"
-  description = "WAF for ${var.project} ${var.environment} — CloudFront protection"
+  description = "WAF for ${var.project} ${var.environment} CloudFront protection"
   scope       = "CLOUDFRONT"   # ALB ke liye "REGIONAL" hota, CloudFront ke liye "CLOUDFRONT"
 
   default_action {
-    allow {}   # Default allow — rules jo match karein woh block/count honge
+    allow {}   # Default allow â€” rules jo match karein woh block/count honge
   }
 
-  # ── Rule 1: AWS Managed — Common Rules ───────────────
+  # â”€â”€ Rule 1: AWS Managed â€” Common Rules â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # OWASP Top 10 common vulnerabilities cover karta hai
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
@@ -28,7 +37,7 @@ resource "aws_wafv2_web_acl" "main" {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
 
-        # Size constraint rules override karo — large body requests allow karne ke liye
+        # Size constraint rules override karo â€” large body requests allow karne ke liye
         rule_action_override {
           name = "SizeRestrictions_BODY"
           action_to_use {
@@ -45,7 +54,7 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
-  # ── Rule 2: AWS Managed — Known Bad Inputs ────────────
+  # â”€â”€ Rule 2: AWS Managed â€” Known Bad Inputs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # Log4j, Spring4Shell etc. known exploits block karta hai
   rule {
     name     = "AWSManagedRulesKnownBadInputsRuleSet"
@@ -69,7 +78,7 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
-  # ── Rule 3: AWS Managed — SQL Injection ──────────────
+  # â”€â”€ Rule 3: AWS Managed â€” SQL Injection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # SQL injection attacks block karta hai
   rule {
     name     = "AWSManagedRulesSQLiRuleSet"
@@ -93,7 +102,7 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
-  # ── Rule 4: Rate Limiting ─────────────────────────────
+  # â”€â”€ Rule 4: Rate Limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # Ek IP se zyada requests aaye toh block karo
   # API abuse aur brute force attacks rokta hai
   rule {
@@ -109,7 +118,7 @@ resource "aws_wafv2_web_acl" "main" {
         limit              = var.rate_limit_per_5min
         aggregate_key_type = "IP"
 
-        # Sirf /api/* pe rate limit lagao — static files pe nahi
+        # Sirf /api/* pe rate limit lagao â€” static files pe nahi
         scope_down_statement {
           byte_match_statement {
             field_to_match {
@@ -133,9 +142,9 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
-  # ── Rule 5: Geo Blocking (optional) ──────────────────
-  # Specific countries block karo — production ke liye useful
-  # Default mein disabled hai — var.blocked_countries empty hai
+  # â”€â”€ Rule 5: Geo Blocking (optional) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  # Specific countries block karo â€” production ke liye useful
+  # Default mein disabled hai â€” var.blocked_countries empty hai
   dynamic "rule" {
     for_each = length(var.blocked_countries) > 0 ? [1] : []
 
@@ -161,7 +170,7 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
-  # ── Rule 6: IP Allowlist for Admin paths ─────────────
+  # â”€â”€ Rule 6: IP Allowlist for Admin paths â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # /admin/* sirf allowed IPs se access ho
   dynamic "rule" {
     for_each = length(var.admin_allowed_ips) > 0 ? [1] : []
@@ -223,8 +232,8 @@ resource "aws_wafv2_web_acl" "main" {
   }
 }
 
-# ── Admin IP Set ──────────────────────────────────────
-# Admin allowed IPs ka set — sirf tab banao jab IPs diye hon
+# â”€â”€ Admin IP Set â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Admin allowed IPs ka set â€” sirf tab banao jab IPs diye hon
 
 resource "aws_wafv2_ip_set" "admin_allowlist" {
   provider           = aws.us_east_1
@@ -242,14 +251,14 @@ resource "aws_wafv2_ip_set" "admin_allowlist" {
   }
 }
 
-# ── WAF Logging ───────────────────────────────────────
-# WAF logs S3 mein store karo — security audit ke liye
+# â”€â”€ WAF Logging â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# WAF logs S3 mein store karo â€” security audit ke liye
 resource "aws_wafv2_web_acl_logging_configuration" "main" {
   provider                = aws.us_east_1
   log_destination_configs = [aws_cloudwatch_log_group.waf.arn]
   resource_arn            = aws_wafv2_web_acl.main.arn
 
-  # Successful requests log mat karo — sirf blocked/counted
+  # Successful requests log mat karo â€” sirf blocked/counted
   logging_filter {
     default_behavior = "DROP"
 
@@ -275,8 +284,8 @@ resource "aws_wafv2_web_acl_logging_configuration" "main" {
   }
 }
 
-# ── CloudWatch Log Group for WAF ──────────────────────
-# WAF logs ka naam "aws-waf-logs-" se start hona chahiye — AWS requirement
+# â”€â”€ CloudWatch Log Group for WAF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# WAF logs ka naam "aws-waf-logs-" se start hona chahiye â€” AWS requirement
 resource "aws_cloudwatch_log_group" "waf" {
   provider          = aws.us_east_1
   name              = "aws-waf-logs-${var.project}-${var.environment}"
@@ -288,3 +297,6 @@ resource "aws_cloudwatch_log_group" "waf" {
     ManagedBy   = "terraform"
   }
 }
+
+
+

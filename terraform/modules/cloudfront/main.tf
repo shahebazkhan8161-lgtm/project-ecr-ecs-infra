@@ -1,4 +1,13 @@
-# ── CloudFront Distribution ───────────────────────────
+﻿terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      version               = "~> 5.0"
+      configuration_aliases = [aws.us_east_1]
+    }
+  }
+}
+# â”€â”€ CloudFront Distribution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Frontend static files globally cache honge
 # Backend API requests directly ALB pe jaayenge
 
@@ -9,7 +18,7 @@ resource "aws_cloudfront_distribution" "main" {
   default_root_object = "index.html"
   aliases             = [var.domain_name]
 
-  # ── Origin 1 — Frontend (ALB) ──────────────────────
+  # â”€â”€ Origin 1 â€” Frontend (ALB) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   origin {
     domain_name = var.alb_dns_name
     origin_id   = "frontend-alb"
@@ -22,7 +31,7 @@ resource "aws_cloudfront_distribution" "main" {
     }
   }
 
-  # ── Origin 2 — Backend API (ALB /api/*) ────────────
+  # â”€â”€ Origin 2 â€” Backend API (ALB /api/*) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   origin {
     domain_name = var.alb_dns_name
     origin_id   = "backend-alb"
@@ -35,7 +44,7 @@ resource "aws_cloudfront_distribution" "main" {
     }
   }
 
-  # ── Cache Behavior — /api/* → Backend ──────────────
+  # â”€â”€ Cache Behavior â€” /api/* â†’ Backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # API requests cache nahi hone chahiye
   ordered_cache_behavior {
     path_pattern     = "/api/*"
@@ -58,7 +67,7 @@ resource "aws_cloudfront_distribution" "main" {
     compress               = true
   }
 
-  # ── Cache Behavior — /health → Backend ─────────────
+  # â”€â”€ Cache Behavior â€” /health â†’ Backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   ordered_cache_behavior {
     path_pattern     = "/health"
     target_origin_id = "backend-alb"
@@ -77,7 +86,7 @@ resource "aws_cloudfront_distribution" "main" {
     compress               = true
   }
 
-  # ── Default Cache Behavior — Frontend static files ─
+  # â”€â”€ Default Cache Behavior â€” Frontend static files â”€
   default_cache_behavior {
     target_origin_id = "frontend-alb"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
@@ -95,8 +104,8 @@ resource "aws_cloudfront_distribution" "main" {
     compress               = true
   }
 
-  # ── SPA Support — 404/403 → index.html ─────────────
-  # React/SPA ke liye zaroori — client-side routing
+  # â”€â”€ SPA Support â€” 404/403 â†’ index.html â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  # React/SPA ke liye zaroori â€” client-side routing
   custom_error_response {
     error_code            = 404
     response_code         = 200
@@ -111,7 +120,7 @@ resource "aws_cloudfront_distribution" "main" {
     error_caching_min_ttl = 0
   }
 
-  # ── SSL Certificate ─────────────────────────────────
+  # â”€â”€ SSL Certificate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # CloudFront ke liye certificate us-east-1 mein hona chahiye
   viewer_certificate {
     acm_certificate_arn      = var.acm_certificate_arn_us_east_1
@@ -119,19 +128,19 @@ resource "aws_cloudfront_distribution" "main" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
-  # ── Geo Restriction ─────────────────────────────────
+  # â”€â”€ Geo Restriction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   restrictions {
     geo_restriction {
       restriction_type = "none"
     }
   }
 
-  # ── Price Class ─────────────────────────────────────
+  # â”€â”€ Price Class â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   # PriceClass_100 = US, Europe, Asia (cheapest)
   # PriceClass_All = global (expensive)
   price_class = var.environment == "production" ? "PriceClass_All" : "PriceClass_100"
 
-  # WAF attach karo — waf module se ARN aata hai
+  # WAF attach karo â€” waf module se ARN aata hai
   web_acl_id = var.waf_web_acl_arn
 
   tags = {
@@ -141,7 +150,7 @@ resource "aws_cloudfront_distribution" "main" {
   }
 }
 
-# ── ACM Certificate — us-east-1 (CloudFront ke liye) ─
+# â”€â”€ ACM Certificate â€” us-east-1 (CloudFront ke liye) â”€
 # CloudFront sirf us-east-1 certificates accept karta hai
 # Isliye alag provider use karna padta hai
 resource "aws_acm_certificate" "cloudfront" {
@@ -165,3 +174,4 @@ resource "aws_acm_certificate_validation" "cloudfront" {
   certificate_arn         = aws_acm_certificate.cloudfront.arn
   validation_record_fqdns = var.cert_validation_fqdns
 }
+

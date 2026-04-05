@@ -21,9 +21,9 @@ frontend_desired_count = 1
 
 # OIDC — sirf staging branch UAT role assume kar sakti hai
 github_allowed_subjects = [
-  "repo:YOUR-ORG/project-ecr-ecs-frontend:ref:refs/heads/staging",
-  "repo:YOUR-ORG/project-ecr-ecs-backend:ref:refs/heads/staging",
-  "repo:YOUR-ORG/project-ecr-ecs-infra:ref:refs/heads/staging"
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-frontend:ref:refs/heads/staging",
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-backend:ref:refs/heads/staging",
+  "repo:shahebazkhan8161-lgtm/project-ecr-ecs-infra:ref:refs/heads/staging"
 ]
 
 # Secrets — CI se inject honge
